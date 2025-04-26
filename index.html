@@ -1,0 +1,26 @@
+<script type="importmap">
+  {
+    "imports": {
+      "@google/genai": "https://esm.sh/@google/genai@^0.7.0",
+      "marked": "https://esm.sh/marked@^15.0.7",
+      "html2pdf.js": "https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"
+    }
+  }
+</script>
+<div class="container">
+  <h1>Explain Like I'm 5</h1>
+  <p>Examples:</p>
+  <ul id="examples">
+    <li>Explain how quantum computing works.</li>
+    <li>Explain how the internet works.</li>
+    <li>Explain how the human brain works.</li>
+  </ul>
+  <p>enter your question:</p>
+  <textarea id="input" placeholder="Enter question and press Enter."></textarea>
+  <div id="output"></div>
+  <div id="error" hidden></div>
+  <div id="slideshow" hidden></div>
+  <button id="export-btn" class="export-button" hidden>Save as PDF</button>
+</div>
+<link rel="stylesheet" href="index.css">
+<script src="index.tsx" type="module"></script>

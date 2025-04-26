@@ -1,0 +1,4 @@
+{
+  "name": "Explain Like I'm 5",
+  "description": "Explain Like I'm 5 is a web application that uses the Google GenAI API to generate explanations of complex topics in simple terms. It allows users to input a topic and receive an explanation that is easy to understand."
+}
