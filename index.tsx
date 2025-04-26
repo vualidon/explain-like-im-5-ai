@@ -10,22 +10,16 @@ import html2pdf from 'html2pdf.js';
 
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
-// Create a type for the chat object to work around the private history property
-type ChatWithHistory = ReturnType<typeof ai.chats.create> & {
-  // Add a public property to store history
-  historyItems: Array<any>;
-};
-
-const chat = ai.chats.create({
-  model: 'gemini-2.0-flash-exp',
-  config: {
-    responseModalities: ['TEXT', 'IMAGE'],
-  },
-  history: [],
-}) as ChatWithHistory;
-
-// Initialize the history items
-chat.historyItems = [];
+// Function to create a fresh chat instance for each question
+function createFreshChat() {
+  return ai.chats.create({
+    model: 'gemini-2.0-flash-exp',
+    config: {
+      responseModalities: ['TEXT', 'IMAGE'],
+    },
+    history: [],
+  });
+}
 
 const userInput = document.querySelector('#input') as HTMLTextAreaElement;
 const modelOutput = document.querySelector('#output') as HTMLDivElement;
@@ -75,8 +69,8 @@ async function generate(message: string | null) {
   userInput.disabled = true;
   exportBtn.setAttribute('hidden', '');  // Hide button initially
 
-  // Reset history by clearing our custom array instead of accessing private property
-  chat.historyItems = [];
+  // Create a fresh chat instance for this question
+  const chat = createFreshChat();
 
   modelOutput.innerHTML = '';
   slideshow.innerHTML = '';
@@ -84,12 +78,15 @@ async function generate(message: string | null) {
   error.toggleAttribute('hidden', true);
 
   try {
+    console.log('Generating explanation for:', message);
+
     const userTurn = document.createElement('div') as HTMLDivElement;
     userTurn.innerHTML = await marked.parse(message);
     userTurn.className = 'user-turn';
     modelOutput.append(userTurn);
     userInput.value = '';
 
+    console.log('Sending message to Gemini API...');
     const result = await chat.sendMessageStream({
       message: message + additionalInstructions,
     });
@@ -97,28 +94,38 @@ async function generate(message: string | null) {
     let text = '';
     let img: HTMLImageElement | null = null;
 
+    console.log('Starting to process response stream...');
+    let slideCount = 0;
+
     for await (const chunk of result) {
+      console.log('Received chunk:', chunk);
+
       if (chunk.candidates) {
         for (const candidate of chunk.candidates) {
           if (candidate.content && candidate.content.parts) {
             for (const part of candidate.content.parts) {
               if (part.text) {
                 text += part.text;
+                console.log('Added text:', part.text);
               } else {
                 try {
                   const data = part.inlineData;
                   if (data) {
+                    console.log('Received image data');
                     img = document.createElement('img');
                     img.src = `data:image/png;base64,` + data.data;
                   } else {
-                    console.log('no data', chunk);
+                    console.log('No image data in chunk:', chunk);
                   }
                 } catch (e) {
-                  console.log('no data', chunk);
+                  console.error('Error processing image data:', e);
+                  console.log('Problematic chunk:', chunk);
                 }
               }
               if (text && img) {
+                console.log('Creating slide with text and image');
                 await addSlide(text, img);
+                slideCount++;
                 slideshow.removeAttribute('hidden');
                 exportBtn.removeAttribute('hidden'); // Show export button when we have content
                 text = '';
@@ -129,17 +136,42 @@ async function generate(message: string | null) {
         }
       }
     }
+
+    console.log(`Finished processing response. Created ${slideCount} slides.`);
+    // Handle any remaining content (text with image or just text)
     if (img) {
+      console.log('Creating final slide with remaining content');
       await addSlide(text, img);
+      slideCount++;
       slideshow.removeAttribute('hidden');
       exportBtn.removeAttribute('hidden'); // Show export button when we have content
       text = '';
+    } else if (text) {
+      console.log('Text without image remains:', text);
+      // Optionally handle text without image
+    }
+
+    console.log(`Total slides created: ${slideCount}`);
+
+    // Make sure the slideshow is visible if we have slides
+    if (slideshow.children.length > 0) {
+      slideshow.removeAttribute('hidden');
+      exportBtn.removeAttribute('hidden');
+    } else {
+      console.warn('No slides were created!');
     }
   } catch (e) {
+    console.error('Error generating explanation:', e);
     const msg = parseError(e);
     error.innerHTML = `Something went wrong: ${msg}`;
     error.removeAttribute('hidden');
+
+    // Make sure slideshow is hidden when there's an error
+    slideshow.setAttribute('hidden', '');
+    exportBtn.setAttribute('hidden', '');
   }
+
+  console.log('Generation process completed');
   userInput.disabled = false;
   userInput.focus();
 }
