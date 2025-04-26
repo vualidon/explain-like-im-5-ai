@@ -2,7 +2,7 @@
 
 A fun web application that explains complex topics in simple terms with cute illustrations, designed for children or anyone who wants easy-to-understand explanations.
 
-![Explain Like I'm 5 App](https://github.com/user-attachments/assets/9f2ee8f9-1e83-4bce-a3e3-595bdde6bf01)
+![Explain Like I'm 5 App](https://github.com/user-attachments/assets/1fb360a4-0bf9-4e60-8d91-f93fb4206941)
 
 ## Features
 
