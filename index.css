@@ -6,6 +6,13 @@
   padding: 0;
 }
 
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
 body {
   font-family: 'Gloria Hallelujah', cursive;
   padding: 20px;
@@ -18,12 +25,18 @@ body {
     linear-gradient(90deg, transparent 79px, #abced4 79px, #abced4 81px, transparent 81px),
     linear-gradient(#eee .1em, transparent .1em);
   background-size: 100% 1.2em;
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100% - 40px);
+  /* Account for body padding */
 }
 
 .container {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  flex: 1 0 auto;
+  /* This makes the container take up all available space */
 }
 
 h1 {
@@ -258,4 +271,67 @@ textarea#input::placeholder {
 .export-slides .slide {
   page-break-inside: avoid;
   margin: 20px 0;
+}
+
+/* Footer styles */
+.footer {
+  margin-top: auto;
+  /* Push the footer to the bottom */
+  padding: 20px 0;
+  border-top: 3px dashed #2c3e50;
+  text-align: center;
+  font-family: 'Gloria Hallelujah', cursive;
+  color: #2c3e50;
+  width: 100%;
+  flex-shrink: 0;
+  /* Prevent the footer from shrinking */
+  min-height: 80px;
+  /* Ensure minimum height */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.footer p {
+  font-size: 1rem;
+  margin: 0;
+  transform: rotate(-1deg);
+  text-shadow: 1px 1px 0 #fff;
+}
+
+.footer-decoration {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 15px;
+}
+
+.footer-decoration span {
+  font-size: 2rem;
+  display: inline-block;
+  animation: pulse 2s infinite alternate;
+  color: #2c3e50;
+  margin: 0 10px;
+}
+
+.footer-decoration span:nth-child(2) {
+  animation-delay: 0.3s;
+  color: #e74c3c;
+  /* Red heart */
+  font-size: 2.2rem;
+}
+
+.footer-decoration span:nth-child(3) {
+  animation-delay: 0.6s;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+
+  100% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
 }
